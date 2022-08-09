@@ -109,6 +109,7 @@ ul li a {
 .posts h2 {
     /* width: 30%; */
     color: #c19400;
+    margin-bottom: 0;
     font-family: 'Bree Serif', serif;
 }
 .posts p {
@@ -119,6 +120,7 @@ ul li a {
 .posts h3 {
     font-family: 'Open Sans', sans-serif;
     font-size: 0.8rem;
+    margin-top: 0px;
     color: #44008b;
 }
 .pstname {
