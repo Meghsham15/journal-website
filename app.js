@@ -54,7 +54,7 @@ passport.deserializeUser(function (user, cb) {
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_ID,
     clientSecret: process.env.GOOGLE_SECRET,
-    callbackURL: "http://localhost:3000/auth/google/trailProject"
+    callbackURL: "https://fierce-inlet-60024.herokuapp.com/auth/google/trailProject"
 },
     function (accessToken, refreshToken, profile, cb) {
         Compose.findOrCreate({ googleId: profile.id }, function (err, user) {
