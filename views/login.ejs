@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dairy</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
+        integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+        integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/bootstrap-social.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<div class="container mt-5">
+    <h1>Login</h1>
+  
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="card">
+          <div class="card-body regBody">
+  
+            <!-- Makes POST request to /login route -->
+            <form action="/login" method="POST">
+              <div class="form-group">
+                <label for="name">Username</label>
+                <input type="name" class="form-control" name="username" required>
+              </div>
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" name="password" required>
+              </div>
+              <button type="submit" class="btn btn-outline-dark">Login</button>
+            </form>
+  
+          </div>
+        </div>
+      </div>
+  
+      <div class="col-sm-4">
+        <div class="card">
+          <div class="card-body regBody">
+            <a class="btn  btn-social btn-google btn-block log" href="/auth/google" role="button">
+              <i class="fab fa-google"></i>
+              Sign In with Google
+            </a>
+            <a class="btn btn-social btn-facebook btn-block log" href="/auth/facebook" role="button">
+              <i class="fab fa-facebook"></i>
+              Sign In with facebook
+            </a>
+            <a class="btn btn-social btn-github btn-block log" href="/auth/github" role="button">
+              <i class="fab fa-github"></i>
+              Sign In with GitHub
+            </a>
+          </div>
+        </div>
+      </div>
+  
+  
+    </div>
+  </div>
