@@ -76,6 +76,8 @@
 }
 .form-group input, .form-group textarea {
     height: 4vw;
+    padding: 3vw;
+    font-size: 4vw;
 }
 .compose-form{
     width: 70%;
