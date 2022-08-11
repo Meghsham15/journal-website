@@ -11,6 +11,7 @@ const passportLocalMongoose = require("passport-local-mongoose");
 const session = require("express-session");
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
+const FacebookStrategy = require('passport-facebook').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -34,7 +35,8 @@ const composeSchema = new mongoose.Schema({
     password: String,
     username:String,
     googleId: String,
-    githubId:String
+    githubId:String,
+    facebookId:String
 });
 composeSchema.plugin(findOrCreate);
 composeSchema.plugin(passportLocalMongoose);
@@ -79,6 +81,20 @@ passport.use(new GitHubStrategy({
         user.username = profile.username;
         user.save();
       return done(err, user);
+    });
+  }
+));
+
+passport.use(new FacebookStrategy({
+    clientID: process.env.FACEBOOK_ID,
+    clientSecret: process.env.FACEBOOK_SECRET,
+    callbackURL: "https://fierce-inlet-60024.herokuapp.com/auth/facebook/trailProject"
+  },
+  function(accessToken, refreshToken, profile, cb) {
+    Compose.findOrCreate({ facebookId: profile.id }, function (err, user) {
+        user.username = profile.displayName;
+      user.save();
+      return cb(err, user);
     });
   }
 ));
@@ -209,6 +225,17 @@ app.get('/auth/github',
 
 app.get('/auth/github/trailProject', 
   passport.authenticate('github', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/home');
+  }
+);
+
+app.get('/auth/facebook',
+  passport.authenticate('facebook'));
+
+app.get('/auth/facebook/trailProject',
+  passport.authenticate('facebook', { failureRedirect: '/login' }),
   function(req, res) {
     // Successful authentication, redirect home.
     res.redirect('/home');
