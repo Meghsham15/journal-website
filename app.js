@@ -10,6 +10,7 @@ const passportLocal = require("passport-local");
 const passportLocalMongoose = require("passport-local-mongoose");
 const session = require("express-session");
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const GitHubStrategy = require('passport-github2').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -32,7 +33,8 @@ const composeSchema = new mongoose.Schema({
     post: String,
     password: String,
     username:String,
-    googleId: String
+    googleId: String,
+    githubId:String
 });
 composeSchema.plugin(findOrCreate);
 composeSchema.plugin(passportLocalMongoose);
@@ -65,6 +67,20 @@ passport.use(new GoogleStrategy({
             return cb(err, user);
         });
     }
+));
+
+passport.use(new GitHubStrategy({
+    clientID: process.env.GITHUB_ID,
+    clientSecret: process.env.GITHUB_SECRET,
+    callbackURL: "https://fierce-inlet-60024.herokuapp.com/auth/github/trailProject"
+  },
+  function(accessToken, refreshToken, profile, done) {
+    Compose.findOrCreate({ githubId: profile.id }, function (err, user) {
+        user.username = profile.username;
+        user.save();
+      return done(err, user);
+    });
+  }
 ));
 
 passport.serializeUser(Compose.serializeUser());
@@ -185,6 +201,18 @@ app.get('/auth/google/trailProject',
         // Successful authentication, redirect home.
         res.redirect('/home');
     }
+);
+
+app.get('/auth/github',
+  passport.authenticate('github', { scope: [ 'user:email' ] })
+);
+
+app.get('/auth/github/trailProject', 
+  passport.authenticate('github', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/home');
+  }
 );
 
 app.post("/register", function (req, res) {
