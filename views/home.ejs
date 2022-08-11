@@ -4,7 +4,7 @@
         <div class="content">
             <h2 class="wlc">Welcome @<%= name %>  </h2>
             <h1>Posts</h1>
-           <% postContent.forEach(function (content) { %>   
+           <% postContent.reverse().forEach(function (content) { %>   
             <div class="posts">
                 <h2 ><%= content.title %> </h2>
                 <h3>@<%= content.username  %> </h3>

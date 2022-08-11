@@ -13,6 +13,7 @@ ul li a {
 }
 .navbar {
     display: flex;
+    z-index: 1;
     position: sticky;
     justify-content: space-around;
     top: 0px;

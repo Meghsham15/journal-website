@@ -127,6 +127,7 @@ app.get("/home", function (req, res) {
             if(err){
                 console.log(err);
             }else{
+                // console.log(req.user.id);
                 // console.log(foundUser.username);
                 name = foundUser.username;
                 // console.log(name);
@@ -276,7 +277,9 @@ app.post("/compose", function (req, res) {
     if(req.isAuthenticated()){
         const title= req.body.titleInput;
         const post= req.body.postInput;
-        console.log(req.user.id);
+        const id = req.user.id;
+        const name = req.user.username;
+        // console.log();
         Compose.findById(req.user.id,function(err,foundUser){
             if(err){
                 console.log(err);
