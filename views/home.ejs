@@ -6,7 +6,7 @@
             <h1>Posts</h1>
            <% postContent.reverse().forEach(function (content) { %>   
             <div class="posts">
-                <h2 ><%= content.title %> </h2>
+                <h2 ><%= content.title.substring(0,30) %> </h2>
                 <h3>@<%= content.username  %> </h3>
                 <p><%= content.post.substring(0,40)+"..." %></p><a href="/posts/<%= content.title %> ">read more</a>
             </div>
