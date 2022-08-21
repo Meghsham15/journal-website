@@ -4,7 +4,6 @@ const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const _ = require("lodash");
 const mongoose = require("mongoose");
-const alert = require('alert');
 const app = express();
 const passport = require("passport");
 const passportLocal = require("passport-local");
@@ -14,6 +13,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
+const { isNil } = require('lodash');
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
@@ -33,7 +33,7 @@ mongoose.connect("mongodb+srv://admin-meghsham:Megh$h%40m50@cluster0.gpzckyr.mon
 const postSchema = new mongoose.Schema({
     title: {
         type: String,
-        unique: true
+        unique: false
     },
     post: String,
     name: String
@@ -42,10 +42,7 @@ const Post = new mongoose.model("Post", postSchema);
 
 const composeSchema = new mongoose.Schema({
     email: String,
-    post: {
-        type: [postSchema],
-        unique: true
-    },
+    post: [postSchema],
     password: String,
     username: String,
     googleId: String,
@@ -183,7 +180,7 @@ app.get("/compose", function (req, res) {
         res.redirect("/");
     }
 });
-app.get("/uniqueTitle",function(req,res){
+app.get("/uniqueTitle", function (req, res) {
     if (req.isAuthenticated()) {
         res.render("uniqueTitle");
     } else {
@@ -315,22 +312,29 @@ app.post("/compose", function (req, res) {
             if (err) {
                 console.log(err);
             } else {
-                let newPost = new Post({
-                    title: title,
-                    post: post,
-                    name: name
-                });
-                newPost.save(function (err) {
-                    if (err) {
-                        console.log("err");
+                let userTitle = "";
+                for (var i = 0; i < posts.length; i++) {
+                    if (_.lowerCase(posts[i].title) == _.lowerCase(title)) {
+                        userTitle = _.lowerCase(posts[i].title);
+                        console.log("matched" + _.lowerCase(posts[i].title));
                         res.redirect("/uniqueTitle");
-                    } else {
-                        foundUser.post.push(newPost);
-                        foundUser.save(function () {
-                            res.redirect("/home");
-                        });
+                        break;
                     }
-                });
+                }
+                if (userTitle != title) {
+                    let newPost = new Post({
+                        title: title,
+                        post: post,
+                        name: name
+                    });
+                    newPost.save()
+                    foundUser.post.push(newPost);
+                    foundUser.save(function () {
+                        res.redirect("/home");
+                    });
+                }
+
+
 
             }
         });
