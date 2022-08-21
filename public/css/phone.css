@@ -40,7 +40,7 @@
     margin: 4vw;
 }
 .posts:hover {
-    transform: scale(1.2);
+    transform: scale(1.1);
 }
 .posts h2 {
     font-size: 6vw;
