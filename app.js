@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const _ = require("lodash");
 const mongoose = require("mongoose");
+const alert = require('alert');
 const app = express();
 const passport = require("passport");
 const passportLocal = require("passport-local");
@@ -28,15 +29,28 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 mongoose.connect("mongodb+srv://admin-meghsham:Megh$h%40m50@cluster0.gpzckyr.mongodb.net/projectDb");// Created a Schema --- 
-const composeSchema = new mongoose.Schema({
-    title: String,
-    email:String,
+
+const postSchema = new mongoose.Schema({
+    title: {
+        type: String,
+        unique: true
+    },
     post: String,
+    name: String
+});
+const Post = new mongoose.model("Post", postSchema);
+
+const composeSchema = new mongoose.Schema({
+    email: String,
+    post: {
+        type: [postSchema],
+        unique: true
+    },
     password: String,
-    username:String,
+    username: String,
     googleId: String,
-    githubId:String,
-    facebookId:String
+    githubId: String,
+    facebookId: String
 });
 composeSchema.plugin(findOrCreate);
 composeSchema.plugin(passportLocalMongoose);
@@ -75,28 +89,28 @@ passport.use(new GitHubStrategy({
     clientID: process.env.GITHUB_ID,
     clientSecret: process.env.GITHUB_SECRET,
     callbackURL: "https://fierce-inlet-60024.herokuapp.com/auth/github/trailProject"
-  },
-  function(accessToken, refreshToken, profile, done) {
-    Compose.findOrCreate({ githubId: profile.id }, function (err, user) {
-        user.username = profile.username;
-        user.save();
-      return done(err, user);
-    });
-  }
+},
+    function (accessToken, refreshToken, profile, done) {
+        Compose.findOrCreate({ githubId: profile.id }, function (err, user) {
+            user.username = profile.username;
+            user.save();
+            return done(err, user);
+        });
+    }
 ));
 
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_ID,
     clientSecret: process.env.FACEBOOK_SECRET,
     callbackURL: "https://fierce-inlet-60024.herokuapp.com/auth/facebook/trailProject"
-  },
-  function(accessToken, refreshToken, profile, cb) {
-    Compose.findOrCreate({ facebookId: profile.id }, function (err, user) {
-        user.username = profile.displayName;
-      user.save();
-      return cb(err, user);
-    });
-  }
+},
+    function (accessToken, refreshToken, profile, cb) {
+        Compose.findOrCreate({ facebookId: profile.id }, function (err, user) {
+            user.username = profile.displayName;
+            user.save();
+            return cb(err, user);
+        });
+    }
 ));
 
 passport.serializeUser(Compose.serializeUser());
@@ -120,29 +134,30 @@ passport.deserializeUser(Compose.deserializeUser());
 
 
 app.get("/home", function (req, res) {
-    if(req.isAuthenticated()){
-        let name = "";
+    if (req.isAuthenticated()) {
         // console.log(req.user.id);
-        Compose.findById(req.user.id,function(err,foundUser){
-            if(err){
+        Post.find({}, function (err, foundUser) {
+            if (err) {
                 console.log(err);
-            }else{
+            } else {
                 // console.log(req.user.id);
                 // console.log(foundUser.username);
-                name = foundUser.username;
                 // console.log(name);
-                Compose.find({ "post": { $ne: null } }, function (err, cp) {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        posts=cp;
-                        res.render("home", { postContent: cp,name:name});
-                    }
-                });
+                // Compose.find({ "post": { $ne: null } }, function (err, cp) {
+                //     if (err) {
+                //         console.log(err);
+                //     } else {
+                //         posts=cp;
+
+                //     }
+                // });
+                let name = req.user.username;
+                posts = foundUser;
+                res.render("home", { postContent: foundUser, name: name });
             }
         });
-    }else{
-        res.render("signin");
+    } else {
+        res.redirect("/");
     }
 
 });
@@ -151,37 +166,45 @@ app.get("/about", function (req, res) {
     if (req.isAuthenticated()) {
         res.render("about", { aboutContent: aboutContent });
     } else {
-        res.render("signin");
+        res.redirect("/");
     }
 });
 app.get("/contact", function (req, res) {
     if (req.isAuthenticated()) {
         res.render("contact");
     } else {
-        res.render("signin");
+        res.redirect("/");
     }
 });
 app.get("/compose", function (req, res) {
     if (req.isAuthenticated()) {
         res.render("compose");
     } else {
-        res.render("signin");
+        res.redirect("/");
+    }
+});
+app.get("/uniqueTitle",function(req,res){
+    if (req.isAuthenticated()) {
+        res.render("uniqueTitle");
+    } else {
+        res.redirect("/");
     }
 });
 
 app.get("/posts/:postName", function (req, res) {
     if (req.isAuthenticated()) {
+        // console.log(posts);
+        // console.log(_.lowerCase(req.params.postName));
         posts.forEach(function (name) {
-            if (_.lowerCase(name.title) === _.lowerCase(req.params.postName)) {
-                // console.log(name.title);
-                // console.log(req.params.postName);
-                res.render("post", { title: name.title, content: name.post,name:name.username });
+            if (_.lowerCase(name.title) == _.lowerCase(req.params.postName)) {
+                // console.log(_.lowerCase(name.title)+" "+_.lowerCase(req.params.postName));
+                res.render("post", { title: name.title, content: name.post, name: name.name });
             } else {
-                console.log("NOt a Match");
+                // console.log("NOt a Match");
             }
         });
     } else {
-        res.render("signin");
+        res.redirect("/");
     }
 
 });
@@ -221,26 +244,26 @@ app.get('/auth/google/trailProject',
 );
 
 app.get('/auth/github',
-  passport.authenticate('github', { scope: [ 'user:email' ] })
+    passport.authenticate('github', { scope: ['user:email'] })
 );
 
-app.get('/auth/github/trailProject', 
-  passport.authenticate('github', { failureRedirect: '/login' }),
-  function(req, res) {
-    // Successful authentication, redirect home.
-    res.redirect('/home');
-  }
+app.get('/auth/github/trailProject',
+    passport.authenticate('github', { failureRedirect: '/login' }),
+    function (req, res) {
+        // Successful authentication, redirect home.
+        res.redirect('/home');
+    }
 );
 
 app.get('/auth/facebook',
-  passport.authenticate('facebook'));
+    passport.authenticate('facebook'));
 
 app.get('/auth/facebook/trailProject',
-  passport.authenticate('facebook', { failureRedirect: '/login' }),
-  function(req, res) {
-    // Successful authentication, redirect home.
-    res.redirect('/home');
-  }
+    passport.authenticate('facebook', { failureRedirect: '/login' }),
+    function (req, res) {
+        // Successful authentication, redirect home.
+        res.redirect('/home');
+    }
 );
 
 app.post("/register", function (req, res) {
@@ -272,28 +295,48 @@ app.post("/login", function (req, res) {
     });
 });
 
+// let newPost = new Post({
+//     title: "default post",
+//     post: "default post",
+//     name: " default name"
+// });
+// newPost.save();
+
 app.post("/compose", function (req, res) {
-    // console.log(req.id);
-    if(req.isAuthenticated()){
-        const title= req.body.titleInput;
-        const post= req.body.postInput;
+    if (req.isAuthenticated()) {
+        const title = req.body.titleInput;
+        const post = req.body.postInput;
         const id = req.user.id;
         const name = req.user.username;
         // console.log();
-        Compose.findById(req.user.id,function(err,foundUser){
-            if(err){
+        // console.log(posts);
+
+        Compose.findById(req.user.id, function (err, foundUser) {
+            if (err) {
                 console.log(err);
-            }else{
-                foundUser.title = title;
-                foundUser.save();
-                foundUser.post= post;
-                foundUser.save(function(){
-                    res.redirect("/home");
+            } else {
+                let newPost = new Post({
+                    title: title,
+                    post: post,
+                    name: name
                 });
+                newPost.save(function (err) {
+                    if (err) {
+                        console.log("err");
+                        res.redirect("/uniqueTitle");
+                    } else {
+                        foundUser.post.push(newPost);
+                        foundUser.save(function () {
+                            res.redirect("/home");
+                        });
+                    }
+                });
+
             }
         });
-    }else{
-        res.render("signin");
+
+    } else {
+        res.redirect("/");
     }
 });
 

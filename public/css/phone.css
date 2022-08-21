@@ -43,14 +43,14 @@
     transform: scale(1.2);
 }
 .posts h2 {
-    font-size: 10vw;
+    font-size: 6vw;
     margin-top: 1vw;
 }
 .posts p {
-    font-size: 5vw;
-}
-.posts h3{
     font-size: 4vw;
+}
+.posts h3 {
+    font-size: 2vw;
 }
 .posts a {
     font-size: 4vw;

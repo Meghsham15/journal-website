@@ -5,7 +5,9 @@ body {
     height: 100%;
     /* font-family: 'Varela Round', sans-serif; */
 }
-
+.hidBut{
+    display: none;
+}
 
 ul li a {
     color: #f61616;
@@ -93,7 +95,7 @@ ul li a {
     text-align: -webkit-center;
     box-shadow: 2px 2px 7px 0px #00077f;
     padding: 5px;
-    transition: all 0.5s ease-in-out;
+    transition: all 0.3s ease-in-out;
 }
 .posts:hover{
     /* filter: blur(2px); */
@@ -216,15 +218,16 @@ ul li a {
     outline-style: none;
     font-family: 'Open Sans', sans-serif;
     font-weight: bold;
-    border: none;
+    border: 2px double;
     /* margin: 20px auto; */
     cursor: pointer;
-    /* height: 43%; */
+    transition: all 0.2s ease-in-out;
 }
 
 .compose-btn:hover {
     border-radius: 10px;
     box-shadow: 2px 2px 4px 0px grey;
+    transform: scale(1.05);
 }
 .jumbotron{
     background: #bbe2ff;
