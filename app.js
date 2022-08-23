@@ -13,7 +13,6 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
-const { isNil } = require('lodash');
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
@@ -30,7 +29,7 @@ app.use(passport.session());
 
 mongoose.connect("mongodb+srv://admin-meghsham:Megh$h%40m50@cluster0.gpzckyr.mongodb.net/projectDb");// Created a Schema --- 
 
-const postSchema = new mongoose.Schema({
+const dataSchema = new mongoose.Schema({
     title: {
         type: String,
         unique: false
@@ -38,22 +37,22 @@ const postSchema = new mongoose.Schema({
     post: String,
     name: String
 });
-const Post = new mongoose.model("Post", postSchema);
+const Data = new mongoose.model("Data", dataSchema);
 
-const composeSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     email: String,
-    post: [postSchema],
+    post: [dataSchema],
     password: String,
     username: String,
     googleId: String,
     githubId: String,
     facebookId: String
 });
-composeSchema.plugin(findOrCreate);
-composeSchema.plugin(passportLocalMongoose);
+userSchema.plugin(findOrCreate);
+userSchema.plugin(passportLocalMongoose);
 // Created a model for db  ---
-const Compose = new mongoose.model("Compose", composeSchema);
-passport.use(Compose.createStrategy());
+const User = new mongoose.model("User", userSchema);
+passport.use(User.createStrategy());
 
 passport.serializeUser(function (user, cb) {
     process.nextTick(function () {
@@ -72,7 +71,7 @@ passport.use(new GoogleStrategy({
     callbackURL: "https://fierce-inlet-60024.herokuapp.com/auth/google/trailProject"
 },
     function (accessToken, refreshToken, profile, cb) {
-        Compose.findOrCreate({ googleId: profile.id }, function (err, user) {
+        User.findOrCreate({ googleId: profile.id }, function (err, user) {
             // console.log(profile);
             user.username = profile.name.givenName;
             // user.googleId=profile.id;
@@ -88,7 +87,7 @@ passport.use(new GitHubStrategy({
     callbackURL: "https://fierce-inlet-60024.herokuapp.com/auth/github/trailProject"
 },
     function (accessToken, refreshToken, profile, done) {
-        Compose.findOrCreate({ githubId: profile.id }, function (err, user) {
+        User.findOrCreate({ githubId: profile.id }, function (err, user) {
             user.username = profile.username;
             user.save();
             return done(err, user);
@@ -102,7 +101,7 @@ passport.use(new FacebookStrategy({
     callbackURL: "https://fierce-inlet-60024.herokuapp.com/auth/facebook/trailProject"
 },
     function (accessToken, refreshToken, profile, cb) {
-        Compose.findOrCreate({ facebookId: profile.id }, function (err, user) {
+        User.findOrCreate({ facebookId: profile.id }, function (err, user) {
             user.username = profile.displayName;
             user.save();
             return cb(err, user);
@@ -110,8 +109,8 @@ passport.use(new FacebookStrategy({
     }
 ));
 
-passport.serializeUser(Compose.serializeUser());
-passport.deserializeUser(Compose.deserializeUser());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 // const test = new Compose({
 //     title: "HTML",
@@ -133,7 +132,7 @@ passport.deserializeUser(Compose.deserializeUser());
 app.get("/home", function (req, res) {
     if (req.isAuthenticated()) {
         // console.log(req.user.id);
-        Post.find({}, function (err, foundUser) {
+        Data.find({}, function (err, foundUser) {
             if (err) {
                 console.log(err);
             } else {
@@ -264,7 +263,7 @@ app.get('/auth/facebook/trailProject',
 );
 
 app.post("/register", function (req, res) {
-    Compose.register({ username: req.body.username }, req.body.password, function (err, user) {
+    User.register({ username: req.body.username }, req.body.password, function (err, user) {
         if (err) {
             console.log(err);
             res.redirect("/register");
@@ -277,7 +276,7 @@ app.post("/register", function (req, res) {
 });
 
 app.post("/login", function (req, res) {
-    const user = new Compose({
+    const user = new User({
         username: req.body.username,
         password: req.body.password
     });
@@ -307,32 +306,21 @@ app.post("/compose", function (req, res) {
         const name = req.user.username;
         // console.log();
         // console.log(posts);
-
-        Compose.findById(req.user.id, function (err, foundUser) {
+        User.findById(req.user.id, function (err, foundUser) {
             if (err) {
-                console.log(err);
+                console.log("Lol");
             } else {
-                let userTitle = "";
-                for (var i = 0; i < posts.length; i++) {
-                    if (_.lowerCase(posts[i].title) == _.lowerCase(title)) {
-                        userTitle = _.lowerCase(posts[i].title);
-                        console.log("matched" + _.lowerCase(posts[i].title));
-                        res.redirect("/uniqueTitle");
-                        break;
-                    }
-                }
-                if (userTitle != title) {
-                    let newPost = new Post({
-                        title: title,
-                        post: post,
-                        name: name
-                    });
-                    newPost.save()
-                    foundUser.post.push(newPost);
-                    foundUser.save(function () {
-                        res.redirect("/home");
-                    });
-                }
+
+                let newPost = new Data({
+                    title: title,
+                    post: post,
+                    name: name
+                });
+                newPost.save()
+                foundUser.post.push(newPost);
+                foundUser.save(function () {
+                    res.redirect("/home");
+                });
 
 
 
