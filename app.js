@@ -321,9 +321,6 @@ app.post("/compose", function (req, res) {
                 foundUser.save(function () {
                     res.redirect("/home");
                 });
-
-
-
             }
         });
 
