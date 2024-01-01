@@ -68,7 +68,7 @@ passport.deserializeUser(function (user, cb) {
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_ID,
     clientSecret: process.env.GOOGLE_SECRET,
-    callbackURL: "https://fierce-inlet-60024.herokuapp.com/auth/google/trailProject"
+    callbackURL: "http://localhost:3000/auth/google/trailProject"
 },
     function (accessToken, refreshToken, profile, cb) {
         User.findOrCreate({ googleId: profile.id }, function (err, user) {
@@ -84,7 +84,7 @@ passport.use(new GoogleStrategy({
 passport.use(new GitHubStrategy({
     clientID: process.env.GITHUB_ID,
     clientSecret: process.env.GITHUB_SECRET,
-    callbackURL: "https://fierce-inlet-60024.herokuapp.com/auth/github/trailProject"
+    callbackURL: "http://localhost:3000/auth/github/trailProject"
 },
     function (accessToken, refreshToken, profile, done) {
         User.findOrCreate({ githubId: profile.id }, function (err, user) {
@@ -98,7 +98,7 @@ passport.use(new GitHubStrategy({
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_ID,
     clientSecret: process.env.FACEBOOK_SECRET,
-    callbackURL: "https://fierce-inlet-60024.herokuapp.com/auth/facebook/trailProject"
+    callbackURL: "http://localhost:3000/auth/facebook/trailProject"
 },
     function (accessToken, refreshToken, profile, cb) {
         User.findOrCreate({ facebookId: profile.id }, function (err, user) {
@@ -316,7 +316,7 @@ app.post("/compose", function (req, res) {
                     post: post,
                     name: name
                 });
-                newPost.save()
+                newPost.save();
                 foundUser.post.push(newPost);
                 foundUser.save(function () {
                     res.redirect("/home");
