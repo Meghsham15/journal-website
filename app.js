@@ -27,7 +27,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-mongoose.connect("mongodb+srv://admin-meghsham:Megh$h%40m50@cluster0.gpzckyr.mongodb.net/projectDb");// Created a Schema --- 
+mongoose.connect("mongodb://localhost:27017/projectDb");// Created a Schema --- 
 
 const dataSchema = new mongoose.Schema({
     title: {
